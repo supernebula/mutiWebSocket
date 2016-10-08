@@ -1,0 +1,188 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+    <title>websocket client</title>
+    <meta charset="utf-8">
+    <script src="echarts.common.min.js"></script>
+    <script src="jquery-1.10.2.min.js"></script>
+
+
+    
+</head>
+<body>
+<div id="main" style="width: 500px; height: 400px;"></div>
+
+    <input id="sendText" placeholder="Text to send"/>
+    <button id="connectionBtn" onclick="start()" value="Launch">Connection</button>
+    <button id="launchBtn" onclick="launch()" value="Launch">Launch</button>
+    <button id="shutoffBtn" onclick="shutoff()" value="Shutoff">Shutoff</button>
+
+<pre id="incomming"></pre>
+    <script>
+        //function randomData() {
+        //    now = new Date(+now + oneDay);
+        //    value = value + Math.random() * 21 - 10;
+        //    return {
+        //        name: now.toString(),
+        //        value: [
+        //            [now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'),
+        //            Math.round(value)
+        //        ]
+        //    }
+        //}
+
+        var data = [];
+        //var now = +new Date(1997, 9, 3);
+        //var oneDay = 24 * 3600 * 1000;
+        //var value = Math.random() * 1000;
+        //for (var i = 0; i < 1000; i++) {
+        //    data.push(randomData());
+        //}
+
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+
+        option = {
+            title: {
+                text: '动态数据 + 时间坐标轴'
+            },
+            tooltip: {
+                trigger: 'axis',
+                formatter: function (params) {
+                    params = params[0];
+                    var date = new Date(params.name);
+                    return date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear() + ' : ' + params.value[1];
+                },
+                axisPointer: {
+                    animation: false
+                }
+            },
+            xAxis: {
+                type: 'time',
+                splitLine: {
+                    show: false
+                }
+            },
+            yAxis: {
+                type: 'value',
+                boundaryGap: [0, '100%'],
+                splitLine: {
+                    show: false
+                }
+            },
+            series: [{
+                name: '模拟数据',
+                type: 'line',
+                showSymbol: false,
+                hoverAnimation: false,
+                data: data
+            }]
+        };
+
+        myChart.setOption(option);
+
+        //app.timeTicket = setInterval(function () {
+
+        //    for (var i = 0; i < 5; i++) {
+        //        data.shift();
+        //        data.push(randomData());
+        //    }
+
+        //    myChart.setOption({
+        //        series: [{
+        //            data: data
+        //        }]
+        //    });
+        //}, 1000);
+    </script>
+
+
+
+
+
+<script type="text/javascript">
+
+    function showInfo(html) {
+        var inc = document.getElementById('incomming');
+        inc.innerHTML += html;
+    }
+    
+    var createSocket = function (action) {
+
+        showInfo("connecting to server ..<br/>");
+        
+        $.get("http://localhost:15184/", function () {
+            var wsImpl = window.WebSocket || window.MozWebSocket;
+            var ws = new wsImpl('ws://localhost:99/');
+            window.ws = ws;
+            ws.onopen = function () {
+                showInfo('.. connection open<br/>');
+                if (action !== undefined && typeof (action) === "function") 
+                    action();
+            };
+
+            ws.onmessage = function (evt) {
+
+                var json = JSON.parse(evt.data);
+                json.name = "Sat Oct 04 1997 00:00:00 GMT+0800 (中国标准时间)";
+                if (data.length > 99) {
+                    data.shift();
+                }
+                data.push(json);
+                myChart.setOption({
+                    series: [{
+                        data: data
+                    }]
+                });
+            };
+
+            ws.onclose = function () {
+                showInfo('.. connection closed<br/>');
+                showInfo("reconnecting..<br/>");
+                console.log("ws.onclosed");
+                createSocket(launch);
+            }
+        });
+    }
+
+
+
+
+    function launch() {
+        //data = [];
+        ws.send("launch");
+    }
+
+    function shutoff() {
+        ws.send("shutoff");
+    }
+
+    function keepAlive() {
+        $.get("http://localhost:15184/", function () {
+            console.log("keep iis alived");
+        });
+    }
+
+    var wsKeepTimer;
+
+    var start = function () {
+        var inc = document.getElementById('incomming');
+
+        var form = document.getElementById('sendForm');
+        var input = document.getElementById('sendText');
+
+        createSocket("connecting to server ..<br/>");
+        wsKeepTimer = setInterval(keepAlive, 10000);
+
+        //form.addEventListener('submit', function (e) {
+        //    e.preventDefault();
+        //    var val = input.value;
+        //    ws.send(val);
+        //    input.value = "";
+        //});
+    }
+</script>
+
+</body>
+
+</html>
