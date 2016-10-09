@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataSubscibe.Core
 {
-    interface ISubScheduler
+    public interface ISubScheduler
     {
         bool AddSubscribe<T>(string @event, string subscriber, Action<Subscribe<T>, object, IEventMessage<T>> method, object subContext,
             string name);

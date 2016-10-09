@@ -26,7 +26,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NoIOC</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -166,14 +166,19 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Core\EventMessageFactory.cs" />
+    <Compile Include="Core\FleckExtension.cs" />
     <Compile Include="Core\IEventMessage.cs" />
     <Compile Include="Core\IPublisher.cs" />
     <Compile Include="Core\ISubScheduler.cs" />
     <Compile Include="Core\ISubscribe.cs" />
+    <Compile Include="Core\MessageHandlerActivator.cs" />
+    <Compile Include="Core\MessageHandlerFactory.cs" />
     <Compile Include="Core\PubSubScheduler.cs" />
+    <Compile Include="Core\PushEntrys\TimelinePushEntry.cs" />
     <Compile Include="Core\SocketEventMessage.cs" />
     <Compile Include="Core\Subscribe.cs" />
     <Compile Include="Core\Timeline.cs" />
+    <Compile Include="Core\TimelineFactory.cs" />
     <Compile Include="Core\WebSocketContext.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -182,6 +187,15 @@
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SocketHandlers\HandlerRoute.cs" />
+    <Compile Include="SocketHandlers\MessageHandlerProvider.cs" />
+    <Compile Include="SocketHandlers\SocketMessageHandler.cs" />
+    <Compile Include="SocketHandlers\SocketContent.cs" />
+    <Compile Include="SocketHandlers\SocketHandResult.cs" />
+    <Compile Include="SocketHandlers\SocketMessageType.cs" />
+    <Compile Include="SocketHandlers\SocketRouteAttribute.cs" />
+    <Compile Include="SocketHandlers\StringSocketContent.cs" />
+    <Compile Include="SocketHandlers\TimelineHandler.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>

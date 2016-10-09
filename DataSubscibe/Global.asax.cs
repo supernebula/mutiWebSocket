@@ -44,11 +44,28 @@ namespace DataSubscibe
                     Console.WriteLine("Close!");
                     allSockets.Remove(socket);
                 };
+                socket.OnError = (ex) =>
+                {
+                    Console.WriteLine(ex.Message);
+                };
+
+                socket.OnPing = (bytes) =>
+                {
+                    
+                };
+
+                socket.OnPong = (bytes) =>
+                {
+
+                };
+
                 socket.OnMessage = message =>
                 {
                     Console.WriteLine(message);
                     //allSockets.ToList().ForEach(s => s.Send("Echo: " + message));
                     var path = socket.ConnectionInfo.Path;
+
+                    //var messageHander
                     if (message == "launch")
                     {
                         if (!launchedSockets.Contains(socket))
