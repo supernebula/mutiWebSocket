@@ -29,7 +29,7 @@ namespace DataSubscibe.Core.ServiceIntegration
                     var y = time.Year % 3 * 1000;
                     item.Value[1] = (mRadom + dayRadom + y).ToString();
                     var eventMessage = new SocketEventMessage<Timeline>("timeline", item);
-                    publisher.Publish(eventMessage);
+                    publisher.Bloadcast(eventMessage);
                     time = time.AddDays(1);
                 }
             }, cancelToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);

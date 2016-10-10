@@ -74,7 +74,7 @@ namespace DataSubscibe.Core.ServiceIntegration
                     var @event = "timeline";
                     //var @event = PushEvent.TimeLine;
                     var eventMessage = new SocketEventMessage<Timeline>(@event, item);
-                    publisher.Publish(eventMessage).ContinueWith(t =>
+                    publisher.Bloadcast(eventMessage).ContinueWith(t =>
                     {
                         if (!t.Result && cancelTokenSource != null) //发布失败，取消发布，并停止数据流
                             cancelTokenSource.Cancel();

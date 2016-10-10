@@ -180,7 +180,7 @@
     <Compile Include="Core\PushEntrys\TimelinePushEntry.cs" />
     <Compile Include="Core\PublishSubscribe\SocketEventMessage.cs" />
     <Compile Include="Core\PublishSubscribe\Subscribe.cs" />
-    <Compile Include="Core\Timeline.cs" />
+    <Compile Include="Core\Domain\Models\Timeline.cs" />
     <Compile Include="Core\ServiceIntegration\TimelineFactory.cs" />
     <Compile Include="Core\WebSocketContext.cs" />
     <Compile Include="Global.asax.cs">

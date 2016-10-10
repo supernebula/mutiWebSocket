@@ -5,6 +5,6 @@ namespace DataSubscibe.Core.PublishSubscribe
 {
     public interface IPublisher
     {
-        Task<bool> Publish(IEventMessage message);
+        Task<bool> Bloadcast(IEventMessage message);
     }
 }

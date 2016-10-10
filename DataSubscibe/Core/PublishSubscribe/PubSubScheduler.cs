@@ -117,7 +117,7 @@ namespace DataSubscibe.Core.PublishSubscribe
             }
         }
 
-        public Task<bool> Publish(IEventMessage message)
+        public Task<bool> Bloadcast(IEventMessage message)
         {
             if (!_eventSubsList.ContainsKey(message.Event))
                 return Task.FromResult(false);
