@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
+using DataSubscibe.Core.Domain.Models;
 using DataSubscibe.Core.PublishSubscribe;
 
 namespace DataSubscibe.Core.ServiceIntegration

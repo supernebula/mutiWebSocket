@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace DataSubscibe.Core
+namespace DataSubscibe.Core.Domain.Models
 {
     public class Timeline
     {
