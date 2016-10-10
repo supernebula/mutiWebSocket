@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using WebGrease.Css.Extensions;
 
 namespace DataSubscibe.Core.PublishSubscribe
@@ -7,11 +10,12 @@ namespace DataSubscibe.Core.PublishSubscribe
     public class PubSubScheduler : IPublisher, ISubScheduler
     {
         private static PubSubScheduler _instance;
+
         public static PubSubScheduler Instance
         {
             get
             {
-                if(_instance == null)
+                if (_instance == null)
                     _instance = new PubSubScheduler();
                 return _instance;
             }
@@ -20,8 +24,11 @@ namespace DataSubscibe.Core.PublishSubscribe
         /// <summary>
         /// 订阅列表
         /// </summary>
-        private ConcurrentDictionary<string, ConcurrentDictionary<string, ISubscribe>> _eventSubsList = new ConcurrentDictionary<string, ConcurrentDictionary<string, ISubscribe>>();
-        public bool AddSubscribe<T>(string @event, string subscriber, Action<Subscribe<T>, object, IEventMessage<T>> method, object subContext, string name)
+        private ConcurrentDictionary<string, ConcurrentDictionary<string, ISubscribe>> _eventSubsList =
+            new ConcurrentDictionary<string, ConcurrentDictionary<string, ISubscribe>>();
+
+        public bool AddSubscribe<T>(string @event, string subscriber,
+            Action<Subscribe<T>, object, IEventMessage<T>> method, object subContext, string name)
         {
             var subscribe = new Subscribe<T>()
             {
@@ -36,7 +43,8 @@ namespace DataSubscibe.Core.PublishSubscribe
 
         }
 
-        public bool AddSubscribe<T>(string @event, string subscriber, Action<Subscribe<T>, object, IEventMessage<T>> method, string name)
+        public bool AddSubscribe<T>(string @event, string subscriber,
+            Action<Subscribe<T>, object, IEventMessage<T>> method, string name)
         {
             return AddSubscribe(@event, subscriber, method, default(object), name);
         }
@@ -75,9 +83,9 @@ namespace DataSubscibe.Core.PublishSubscribe
             if (!_eventSubsList.TryGetValue(@event, out subDic))
                 return false;
             ISubscribe sub;
-            if(!subDic.TryGetValue(subscriber, out sub))
+            if (!subDic.TryGetValue(subscriber, out sub))
                 return false;
-            if(sub == null)
+            if (sub == null)
                 return false;
             sub.Cancel();
 
@@ -85,21 +93,56 @@ namespace DataSubscibe.Core.PublishSubscribe
             return subDic.TryRemove(sub.Subscriber, out sub2);
         }
 
-        
+        public void RemoveSubscribe(Guid subscriber)
+        {
+            RemoveSubscribe(subscriber.ToString().ToLower());
+        }
 
-        public void Publish(IEventMessage message)
+        public void RemoveSubscribe(string subscriber)
+        {
+            var deleteEvents = new List<string>();
+            foreach (var subDic in _eventSubsList.Values)
+            {
+                if (subDic.Values.All(e => e.Subscriber != subscriber))
+                    continue;
+                ISubscribe subscribe, subscribe2;
+                if (subDic.TryGetValue(subscriber, out subscribe))
+                    subscribe.Cancel();
+                subDic.TryRemove(subscriber, out subscribe2);
+                if (!subDic.Any() && subscribe != null)
+                {
+                    ConcurrentDictionary<string, ISubscribe> temp;
+                    _eventSubsList.TryRemove(subscribe.Event, out temp);
+                }
+            }
+        }
+
+        public Task<bool> Publish(IEventMessage message)
         {
             if (!_eventSubsList.ContainsKey(message.Event))
-                return;
+                return Task.FromResult(false);
             ConcurrentDictionary<string, ISubscribe> subDic;
             if (!_eventSubsList.TryGetValue(message.Event, out subDic) || subDic == null || subDic.IsEmpty)
-                return;
+                return Task.FromResult(false);
 
-            //广播
-            subDic.Values.ForEach(s =>
+            Task.Run(() =>
             {
-                s.OnPublish(message);
+                try
+                {
+                    //广播
+                    subDic.Values.ForEach(s =>
+                    {
+                        s.OnPublish(message);
+                    });
+                }
+                catch (Exception)
+                {
+                    //log
+                }
             });
+            return Task.FromResult(true);
         }
     }
+
+
 }

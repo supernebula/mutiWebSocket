@@ -1,24 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Web;
+using System.Diagnostics;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
-using DataSubscibe.Core;
 using DataSubscibe.Core.PublishSubscribe;
-using DataSubscibe.Core.ServiceIntegration;
+using DataSubscibe.SocketHandlers;
 using Fleck;
-using Newtonsoft.Json;
 
 namespace DataSubscibe
 {
     public class MvcApplication : System.Web.HttpApplication
     {
         private WebSocketServer _webSocketServer;
-        private Task _longTask;
+        private List<IWebSocketConnection> _allSockets;
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
@@ -30,25 +25,28 @@ namespace DataSubscibe
 
         public WebSocketServer ConfigureWebSocket()
         {
-            var server = new WebSocketServer("ws://127.0.0.1:99/");
+            var server = new WebSocketServer("ws://192.168.1.62:99/");
             FleckLog.Level = LogLevel.Debug;
-            var allSockets = new List<IWebSocketConnection>();
-            var launchedSockets = new List<IWebSocketConnection>();
+            _allSockets = new List<IWebSocketConnection>();
             server.Start(socket =>
             {
                 socket.OnOpen = () =>
                 {
                     Console.WriteLine("Open!");
-                    allSockets.Add(socket);
+                    _allSockets.Add(socket);
                 };
                 socket.OnClose = () =>
                 {
-                    Console.WriteLine("Close!");
-                    allSockets.Remove(socket);
+                    PubSubScheduler.Instance.RemoveSubscribe(socket.ConnectionInfo.Id);
+                    _allSockets.Remove(socket);
+                    Debug.WriteLine("Close!");
+                    
                 };
                 socket.OnError = (ex) =>
                 {
-                    Console.WriteLine(ex.Message);
+                    PubSubScheduler.Instance.RemoveSubscribe(socket.ConnectionInfo.Id);
+                    _allSockets.Remove(socket);
+                    Debug.WriteLine(ex.Message);
                 };
 
                 socket.OnPing = (bytes) =>
@@ -63,46 +61,20 @@ namespace DataSubscibe
 
                 socket.OnMessage = message =>
                 {
-                    Console.WriteLine(message);
-                    //allSockets.ToList().ForEach(s => s.Send("Echo: " + message));
+                    Debug.WriteLine(message);
                     var path = socket.ConnectionInfo.Path;
-
-                    //var messageHander
-                    if (message == "launch")
+                    if (path.Equals("/dynamicline/time", StringComparison.CurrentCultureIgnoreCase)) //最终采用路由方式
                     {
-                        if (!launchedSockets.Contains(socket))
-                            launchedSockets.Add(socket);
-                        PubSubScheduler.Instance.AddSubscribe<Timeline>(
-                            "timeline",
-                            socket.ConnectionInfo.Id.ToString().ToLower(),
-                            (subscribe, subContext, msg) =>
-                            {
-                                var context = (WebSocketContext)subContext;
-                                var content = JsonConvert.SerializeObject(msg.Message);
-
-                                context.WebSocketConnection.Send(content);
-                            },
-                            new WebSocketContext() { WebSocketConnection = socket },
-                            "有新消息"
-                        );
-                    }
-
-                    if (message == "shutoff")
-                    {
-                        PubSubScheduler.Instance.RemoveSubscribe("timeline", socket.ConnectionInfo.Id.ToString().ToLower());
-                        launchedSockets.Remove(socket);
+                        var handler = new DynamicLineHandler(socket)
+                        {
+                            WebSocketConnection = socket 
+                        };
+                        handler.ByTime(message);
                     }
                 };
             });
 
-            StartPipe();
             return server;
-        }
-
-        public void StartPipe()
-        {
-            var pipeSwitch = new CancellationTokenSource();
-            EventMessageFactory.Start(PubSubScheduler.Instance, pipeSwitch.Token);
         }
     }
 }

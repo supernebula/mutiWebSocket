@@ -12,5 +12,7 @@ namespace DataSubscibe.Core.PublishSubscribe
         bool RemoveSubscribe(string @event, string subscriber);
 
         bool AddSubscribe<T>(Subscribe<T> subscribe);
+
+        bool IsExistedSubscribe(string @event, string subscriber);
     }
 }

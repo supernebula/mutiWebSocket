@@ -1,8 +1,10 @@
 ﻿
+using System.Threading.Tasks;
+
 namespace DataSubscibe.Core.PublishSubscribe
 {
     public interface IPublisher
     {
-        void Publish(IEventMessage message);
+        Task<bool> Publish(IEventMessage message);
     }
 }

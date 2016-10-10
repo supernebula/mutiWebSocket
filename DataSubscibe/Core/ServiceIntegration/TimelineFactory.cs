@@ -12,10 +12,7 @@ namespace DataSubscibe.Core.ServiceIntegration
 
         public static TimelineSocketSourceSample Instance
         {
-            get { return _instance ?? (_instance = new TimelineSocketSourceSample()
-            {
-                _stopTokenSource = new CancellationTokenSource()
-            }); }
+            get { return _instance ?? (_instance = new TimelineSocketSourceSample()); }
         }
 
 
@@ -31,19 +28,37 @@ namespace DataSubscibe.Core.ServiceIntegration
 
         public Task Start(IPublisher publisher)
         {
-            return Start(publisher, _stopTokenSource.Token);
+            _stopTokenSource = new CancellationTokenSource();
+            return Start(publisher, _stopTokenSource);
         }
 
-        public async Task Start(IPublisher publisher, CancellationToken cancelToken)
+        public Task Start(IPublisher publisher, CancellationTokenSource cancelTokenSource)
         {
+            //已取消或异常，丢弃
+            if (_longTask != null &&
+                (_longTask.Status == TaskStatus.RanToCompletion 
+                || _longTask.Status == TaskStatus.Canceled 
+                || _longTask.Status == TaskStatus.Faulted))
+            {
+                _longTask.Dispose();
+                _longTask = null;
+            }
+            else if (_longTask != null) //正在运行(或将要运行的)返回
+                return _longTask;
+
             var time = DateTime.Now;
             _longTask = Task.Factory.StartNew(() =>
             {
                 while (true)
                 {
-                    if (cancelToken.IsCancellationRequested)
+                    if (cancelTokenSource.Token.IsCancellationRequested)
+                    {
+                        cancelTokenSource.Dispose();
+                        cancelTokenSource = null;
                         break;
-                    Thread.Sleep(50);
+                    }
+                    
+                    Thread.Sleep(100);
                     var item = new Timeline()
                     {
                         Name = time.ToString(CultureInfo.InvariantCulture),
@@ -55,13 +70,21 @@ namespace DataSubscibe.Core.ServiceIntegration
                     var mRadom = (new Random(Guid.NewGuid().GetHashCode())).Next(0, 20) + 100 * (time.Month % 12);
                     var y = time.Year % 3 * 1000;
                     item.Value[1] = (mRadom + dayRadom + y).ToString();
-                    var eventMessage = new SocketEventMessage<Timeline>("timeline", item);
-                    publisher.Publish(eventMessage);
+
+                    var @event = "timeline";
+                    //var @event = PushEvent.TimeLine;
+                    var eventMessage = new SocketEventMessage<Timeline>(@event, item);
+                    publisher.Publish(eventMessage).ContinueWith(t =>
+                    {
+                        if (!t.Result && cancelTokenSource != null) //发布失败，取消发布，并停止数据流
+                            cancelTokenSource.Cancel();
+
+                    });
                     time = time.AddDays(1);
                 }
-            }, cancelToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            }, cancelTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 
-            await _longTask;
+            return _longTask;
         }
     }
 }

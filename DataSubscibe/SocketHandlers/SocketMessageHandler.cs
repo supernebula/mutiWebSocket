@@ -10,14 +10,21 @@ namespace DataSubscibe.SocketHandlers
     public abstract class SocketMessageHandler
     {
 
-        protected Guid ClientId {
+#if NoIOC 
+        public SocketMessageHandler(IWebSocketConnection webSocketConnection)
+        {
+            WebSocketConnection = webSocketConnection;
+        }
+#endif
+
+        public Guid ClientId {
             get
             {
                 return WebSocketConnection.ConnectionInfo.Id;
             }
         }
 
-        protected string ClientIdString
+        public string ClientIdString
         {
             get
             {
@@ -25,9 +32,9 @@ namespace DataSubscibe.SocketHandlers
             }
         }
 
-        protected IWebSocketConnection WebSocketConnection { get; set; }
+        public IWebSocketConnection WebSocketConnection { get; set; }
 
-        protected WebSocketContext WebSocketContext
+        public WebSocketContext WebSocketContext
         {
             get
             {

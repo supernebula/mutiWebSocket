@@ -1,4 +1,6 @@
 ﻿
+using System.Threading.Tasks;
+
 namespace DataSubscibe.Core.PublishSubscribe
 {
     /// <summary>

@@ -111,9 +111,9 @@
 
         showInfo("connecting to server ..<br/>");
         
-        $.get("http://localhost:15184/", function () {
+        $.get("http://" + window.location.host + "/", function () {
             var wsImpl = window.WebSocket || window.MozWebSocket;
-            var ws = new wsImpl('ws://localhost:99/');
+            var ws = new wsImpl('ws://' + document.domain + ':99/dynamicline/time');
             window.ws = ws;
             ws.onopen = function () {
                 showInfo('.. connection open<br/>');
@@ -124,11 +124,18 @@
             ws.onmessage = function (evt) {
 
                 var json = JSON.parse(evt.data);
-                json.name = "Sat Oct 04 1997 00:00:00 GMT+0800 (中国标准时间)";
+                if (!json.IsSuccessStatus) {
+                    console.log("服务端返回错误");
+                    console.log(evt.data);
+                    console.dir(json);
+                }
+
+                var msg = json.Content.Message;
+                //msg.name = "Sat Oct 04 1997 00:00:00 GMT+0800 (中国标准时间)";
                 if (data.length > 99) {
                     data.shift();
                 }
-                data.push(json);
+                data.push(msg);
                 myChart.setOption({
                     series: [{
                         data: data
@@ -154,11 +161,11 @@
     }
 
     function shutoff() {
-        ws.send("shutoff");
+        ws.send("stop");
     }
 
     function keepAlive() {
-        $.get("http://localhost:15184/", function () {
+        $.get("http://" + window.location.host + "/", function () {
             console.log("keep iis alived");
         });
     }

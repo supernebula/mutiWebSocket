@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using DataSubscibe.Core;
+using DataSubscibe.Core.PublishSubscribe;
 using DataSubscibe.Core.PushEntrys;
+using Fleck;
 using Newtonsoft.Json;
 
 namespace DataSubscibe.SocketHandlers
@@ -13,9 +15,10 @@ namespace DataSubscibe.SocketHandlers
     public class DynamicLineHandler : SocketMessageHandler
     {
 #if NoIOC
-        public DynamicLineHandler()
+        public DynamicLineHandler(IWebSocketConnection webSocketConnection)
+            : base(webSocketConnection)
         {
-            TimelinePubEntry = new TimelinePushEntry();
+            TimelinePubEntry = new TimelinePushEntry(PubSubScheduler.Instance, PubSubScheduler.Instance);
         }
 
 #endif
@@ -24,8 +27,8 @@ namespace DataSubscibe.SocketHandlers
         /// </summary>
         public TimelinePushEntry TimelinePubEntry { get; set; }
 
-        [WebSocketRoute(Path = "dynamicline/simple")]
-        public Task ByYear(string message)
+        [WebSocketRoute(Path = "dynamicline/time")]
+        public Task ByTime(string message)
         {
             if (message == "launch")
             {
