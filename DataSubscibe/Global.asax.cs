@@ -8,6 +8,8 @@ using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 using DataSubscibe.Core;
+using DataSubscibe.Core.PublishSubscribe;
+using DataSubscibe.Core.ServiceIntegration;
 using Fleck;
 using Newtonsoft.Json;
 

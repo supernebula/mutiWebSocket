@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
-using Newtonsoft.Json;
+using DataSubscibe.Core.PublishSubscribe;
 
-namespace DataSubscibe.Core
+namespace DataSubscibe.Core.ServiceIntegration
 {
     public static class EventMessageFactory
     {

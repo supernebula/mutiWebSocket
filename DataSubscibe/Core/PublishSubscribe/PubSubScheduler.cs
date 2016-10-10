@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Linq;
 using WebGrease.Css.Extensions;
 
-namespace DataSubscibe.Core
+namespace DataSubscibe.Core.PublishSubscribe
 {
     public class PubSubScheduler : IPublisher, ISubScheduler
     {
@@ -46,6 +45,8 @@ namespace DataSubscibe.Core
         {
             if (subscribe == null)
                 return false;
+            if (IsExistedSubscribe(subscribe.Event, subscribe.Subscriber)) //已存在的有效订阅，不会重复订阅
+                return true;
 
             ConcurrentDictionary<string, ISubscribe> subDic;
             if (!_eventSubsList.ContainsKey(subscribe.Event))
@@ -57,6 +58,15 @@ namespace DataSubscibe.Core
             if (!_eventSubsList.TryGetValue(subscribe.Event, out subDic) || subDic == null)
                 return false;
             return subDic.TryAdd(subscribe.Subscriber, subscribe);
+        }
+
+        public bool IsExistedSubscribe(string @event, string subscriber)
+        {
+            ConcurrentDictionary<string, ISubscribe> subDic;
+            if (!_eventSubsList.TryGetValue(@event, out subDic) || subDic == null || subDic.IsEmpty)
+                return false;
+            ISubscribe subscribe;
+            return (subDic.TryGetValue(subscriber, out subscribe) && subscribe != null && !subscribe.IsCanceled);
         }
 
         public bool RemoveSubscribe(string @event, string subscriber)

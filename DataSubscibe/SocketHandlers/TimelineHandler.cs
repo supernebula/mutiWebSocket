@@ -15,35 +15,32 @@ namespace DataSubscibe.SocketHandlers
 #if NoIOC
         public DynamicLineHandler()
         {
-            TimelinePubEntry = new TimelinePublishEntry();
+            TimelinePubEntry = new TimelinePushEntry();
         }
 
 #endif
-
-        public TimelinePublishEntry TimelinePubEntry { get; set; }
+        /// <summary>
+        /// Ioc
+        /// </summary>
+        public TimelinePushEntry TimelinePubEntry { get; set; }
 
         [WebSocketRoute(Path = "dynamicline/simple")]
-        public Task ByYear(string message, string @event = "timeline")
+        public Task ByYear(string message)
         {
             if (message == "launch")
             {
-                TimelinePubEntry.StartPublishTimeline(Publisher);
-
-                AddSubscribe<Timeline>(
-                    @event,
-                    async (subscribe, subContext, msg) =>
+                TimelinePubEntry.PushTimeline(ClientIdString, WebSocketContext,
+                    (subscribe, webSocContext, data) =>
                     {
-                        var context = (WebSocketContext)subContext;
-                        var result = SocketHandResult.FromStringSocketContent(msg.Message);
-                        await context.WebSocketConnection.Send(result);
-                    }
-                );
+                        var context = (WebSocketContext) webSocContext;
+                        var result = SocketHandResult.FromStringSocketContent(data.Message);
+                        context.WebSocketConnection.Send(result);
+                    });
             }
 
             if (message == "stop")
             {
-                TimelinePubEntry.StopPublishTimeline();
-                RemoveSubscribe(@event);
+                TimelinePubEntry.CancelPushTaskTimeline(ClientIdString);
             }
             
 

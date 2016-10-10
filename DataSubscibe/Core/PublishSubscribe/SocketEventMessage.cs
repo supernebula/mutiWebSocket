@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace DataSubscibe.Core
+﻿
+namespace DataSubscibe.Core.PublishSubscribe
 {
     public class SocketEventMessage<T> : IEventMessage<T>
     {

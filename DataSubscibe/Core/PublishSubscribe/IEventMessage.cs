@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Web;
-
-namespace DataSubscibe.Core
+﻿
+namespace DataSubscibe.Core.PublishSubscribe
 {
     public interface IEventMessage<out T> : IEventMessage
     {
