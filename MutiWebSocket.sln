@@ -12,6 +12,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{3B6A9C
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleSocketServer", "SimpleSocketServer\SimpleSocketServer.csproj", "{F383B669-51DC-489A-B939-A785084E462D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleSocketClient", "SimpleSocketClient\SimpleSocketClient.csproj", "{23A0CFFF-3B43-4925-B6A4-F7AE3D17159D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Storage", "Storage\Storage.csproj", "{02D45033-0F7B-45A3-8D06-1422B683EB1D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,6 +28,18 @@ Global
 		{89D26B17-F320-4031-9861-24AD9D2DD3D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89D26B17-F320-4031-9861-24AD9D2DD3D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{89D26B17-F320-4031-9861-24AD9D2DD3D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F383B669-51DC-489A-B939-A785084E462D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F383B669-51DC-489A-B939-A785084E462D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F383B669-51DC-489A-B939-A785084E462D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F383B669-51DC-489A-B939-A785084E462D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23A0CFFF-3B43-4925-B6A4-F7AE3D17159D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23A0CFFF-3B43-4925-B6A4-F7AE3D17159D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23A0CFFF-3B43-4925-B6A4-F7AE3D17159D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23A0CFFF-3B43-4925-B6A4-F7AE3D17159D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02D45033-0F7B-45A3-8D06-1422B683EB1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02D45033-0F7B-45A3-8D06-1422B683EB1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02D45033-0F7B-45A3-8D06-1422B683EB1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02D45033-0F7B-45A3-8D06-1422B683EB1D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
