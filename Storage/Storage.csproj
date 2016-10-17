@@ -43,7 +43,7 @@
     <Compile Include="Models\Items.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryEntries\ItemPushEntry.cs" />
-    <Compile Include="Socket\ClientPool.cs" />
+    <Compile Include="Sockets\SocketPool.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

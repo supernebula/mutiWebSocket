@@ -8,15 +8,62 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Storage.Models;
+using Storage.Sockets;
 
 namespace Storage.QueryEntries
 {
     public class ItemPushEntry
     {
-        public Task PushOrStopItemAsync(string taskId, Func<Item, Task<int>> onDataCallback, bool stop = false)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// onDataCallback说明:
+        /// </remarks>
+        /// <param name="taskId"></param>
+        /// <param name="onDataCallback">
+        /// 每接受完一次Socket数据，要执行的回调方法。
+        /// KeyValuePair的<para>string</para>值是事件名称<see cref="EventMessageType"/>, 
+        /// <para>Item</para>时当前方法接受的Socket数据解析得到的实体对象，
+        /// 返回值<para>bool</para>决定Socket是否继续接受数据
+        /// </param>
+        /// <param name="stop"></param>
+        /// <returns></returns>
+        public Task PushOrStopItemAsync(string taskId, Func<KeyValuePair<string, Item>, Task<bool>> onDataCallback, bool stop = false)
         {
+            var @event = "sfdf";
+            KeyValuePair<CancellationTokenSource, Socket> tokenSocket;
+            SocketPool.TryGetValue(@event, out tokenSocket);
+
+
+            if (onDataCallback == null || stop)
+            {
+                KeyValuePair<CancellationTokenSource, Socket> tSocket;
+                SocketPool.TryRemove(@event, out tSocket);
+                if (tSocket.Value == null)
+                    return Task.FromResult(false);
+                tSocket.Key.Cancel();
+                tSocket.Value.Shutdown(SocketShutdown.Both);
+                tSocket.Value.Close();
+                tSocket.Value.Dispose();
+                tSocket.Key.Dispose();
+            }
+
+            KeyValuePair<CancellationTokenSource, Socket> tokenSocket2;
+            SocketPool.TryRemove(@event, out tokenSocket2);
+            tokenSocket2.Key.Cancel();
+            tokenSocket2.Value.Shutdown(SocketShutdown.Both);
+            tokenSocket2.Value.Close();
+            tokenSocket2.Value.Dispose();
+            tokenSocket2.Key.Dispose();
+
+            
+
             IPAddress ip = IPAddress.Parse("127.0.0.1");
-            Socket clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            System.Net.Sockets.Socket clientSocket = new System.Net.Sockets.Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            var cancelTokenSource = new CancellationTokenSource();
+            SocketPool.TryAdd(@event, new KeyValuePair<CancellationTokenSource, Socket>(cancelTokenSource, clientSocket));
+
 
             try
             {
@@ -32,14 +79,61 @@ namespace Storage.QueryEntries
 
             clientSocket.Send(Encoding.ASCII.GetBytes("launch"));
 
+            var cancelokenSource = new CancellationTokenSource();
             var buffer = new byte[1024];
             clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, new AsyncCallback((asyncResult) =>
             {
+
+                var tokenSource = asyncResult as CancellationTokenSource;
+                if (tokenSource.IsCancellationRequested)
+                {
+                    return;
+                }
+                
                 var length = clientSocket.EndReceive(asyncResult);
                 var message = Encoding.UTF8.GetString(buffer, 0, length);
+                if(onDataCallback != null)
+                onDataCallback.Invoke(new KeyValuePair<string, Item>(@event, new Item())).ContinueWith(t =>
+                {
+                    if(!t.Result)
+                        tokenSource.Cancel();
+                });
+
+                //callback(message);
                 Console.WriteLine(message);
-            }), null);
+            }), cancelokenSource);
             return Task.FromResult(1);
+        }
+
+        private static void AsyncReceiveData(IAsyncResult ar)
+        {
+            var tupleState = ar.AsyncState as Tuple<Socket, CancellationToken>;
+            if (tupleState == null)
+                return;
+            var socket = tupleState.Item1;
+            CancellationToken token = tupleState.Item2;
+            if (token.IsCancellationRequested)
+            {
+                socket.Shutdown(SocketShutdown.Both);
+                socket.Close();
+                socket.Dispose();
+                return;
+            }
+
+            if (socket == null)
+                return;
+            if (!socket.Connected)
+                return;
+            if (token.IsCancellationRequested)
+                return;
+
+            var length = socket.EndReceive(ar);
+            var message = Encoding.UTF8.GetString(buffer, 0, length);
+
+            //callback(message);
+            Console.WriteLine(message + (new Random(Guid.NewGuid().GetHashCode())).Next(100000, 999999));
+
+            socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveMessage), tupleState);
         }
     }
 }
