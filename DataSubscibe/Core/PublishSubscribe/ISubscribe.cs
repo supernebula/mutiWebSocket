@@ -1,5 +1,4 @@
 ﻿
-using System.Threading.Tasks;
 
 namespace DataSubscibe.Core.PublishSubscribe
 {
@@ -14,7 +13,7 @@ namespace DataSubscibe.Core.PublishSubscribe
         string Event { get;}
 
         /// <summary>
-        /// 订阅者
+        /// 订阅者Id
         /// </summary>
         string Subscriber { get; }
 
@@ -28,11 +27,14 @@ namespace DataSubscibe.Core.PublishSubscribe
         /// </summary>
         bool IsCanceled { get; }
 
+        /// <summary>
+        /// 取消订阅
+        /// </summary>
         void Cancel();
 
 
         /// <summary>
-        /// 响应发布事件的方法
+        /// 订阅的事件触发（即广播）时响应事件的回调方法
         /// </summary>
         /// <param name="eventMessage"></param>
         void OnPublish(IEventMessage eventMessage);

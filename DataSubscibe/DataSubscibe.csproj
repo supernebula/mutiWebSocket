@@ -22,6 +22,7 @@
     <IISExpressUseClassicPipelineMode />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -191,6 +192,7 @@
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SocketHandlers\HandlerRoute.cs" />
+    <Compile Include="SocketHandlers\FreqLevelHandler.cs" />
     <Compile Include="SocketHandlers\MessageHandlerProvider.cs" />
     <Compile Include="SocketHandlers\SocketMessageHandler.cs" />
     <Compile Include="SocketHandlers\SocketContent.cs" />
@@ -275,6 +277,12 @@
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="packages.config" />
     <None Include="Project_Readme.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Storage\Storage.csproj">
+      <Project>{02d45033-0f7b-45a3-8d06-1422b683eb1d}</Project>
+      <Name>Storage</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -18,7 +18,7 @@ namespace DataSubscibe.SocketHandlers
         public DynamicLineHandler(IWebSocketConnection webSocketConnection)
             : base(webSocketConnection)
         {
-            TimelinePubEntry = new TimelinePushEntry(PubSubScheduler.Instance, PubSubScheduler.Instance);
+            TimelinePubEntry = new TimelinePushEntry(PubSubScheduler.Instance);
         }
 
 #endif

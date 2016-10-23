@@ -12,8 +12,9 @@ using Storage.Sockets;
 
 namespace Storage.QueryEntries
 {
-    public class ItemPushEntry
+    public class FreqLevelPushEntry
     {
+
         /// <summary>
         /// 
         /// </summary>
@@ -29,12 +30,11 @@ namespace Storage.QueryEntries
         /// </param>
         /// <param name="stop"></param>
         /// <returns></returns>
-        public Task PushOrStopItemAsync(string taskId, Func<KeyValuePair<string, Item>, Task<bool>> onDataCallback, bool stop = false)
+        public Task PushOrStopItemAsync(string taskId, Func<KeyValuePair<string, FreqLevelItem>, Task<bool>> onDataCallback, bool stop = false)
         {
             var @event = "sfdf";
             KeyValuePair<CancellationTokenSource, Socket> tokenSocket;
             SocketPool.TryGetValue(@event, out tokenSocket);
-
 
             if (onDataCallback == null || stop)
             {
@@ -57,32 +57,25 @@ namespace Storage.QueryEntries
             tokenSocket2.Value.Dispose();
             tokenSocket2.Key.Dispose();
 
-            
-
-            IPAddress ip = IPAddress.Parse("127.0.0.1");
-            System.Net.Sockets.Socket clientSocket = new System.Net.Sockets.Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            var clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             var cancelTokenSource = new CancellationTokenSource();
             SocketPool.TryAdd(@event, new KeyValuePair<CancellationTokenSource, Socket>(cancelTokenSource, clientSocket));
 
-
             try
             {
-                clientSocket.Connect(new IPEndPoint(ip, 8885)); // 配置服务器IP与端口
+                IPAddress ip = IPAddress.Parse("127.0.0.1");
+                var port = 8885;
+                clientSocket.Connect(new IPEndPoint(ip, port)); // 配置服务器IP与端口
                 Console.WriteLine("连接服务器成功");
-
-
             }
             catch(Exception ex)
             {
                 Debug.WriteLine("连接服务器失败，请按回车键退出！");
             }
 
-            clientSocket.Send(Encoding.ASCII.GetBytes("launch"));
-
             var cancelokenSource = new CancellationTokenSource();
-
-
             var buffer = new byte[1024];
+            clientSocket.Send(Encoding.ASCII.GetBytes("launch"));
             clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, new AsyncCallback((asyncResult) =>
             {
                 AsyncLoopReceiveData(asyncResult);
@@ -90,7 +83,7 @@ namespace Storage.QueryEntries
                 clientSocket, 
                 cancelokenSource, 
                 (msg) => {
-                        return onDataCallback.Invoke(new KeyValuePair<string, Item>(@event, new Item(/*msg*/)));
+                        return onDataCallback.Invoke(new KeyValuePair<string, FreqLevelItem>(@event, new FreqLevelItem(/*msg*/)));
                     }
                 ));
 
@@ -154,7 +147,6 @@ namespace Storage.QueryEntries
 #if DEBUG
             Console.WriteLine(message + (new Random(Guid.NewGuid().GetHashCode())).Next(100000, 999999));
 #endif
-
             socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, new AsyncCallback(AsyncLoopReceiveData), tupleState);
         }
     }

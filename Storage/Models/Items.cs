@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Storage.Models
 {
-    public class Item
+    public class FreqLevelItem
     {
         public string Id { get; set; }
 

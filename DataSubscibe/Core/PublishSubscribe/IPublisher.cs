@@ -5,6 +5,11 @@ namespace DataSubscibe.Core.PublishSubscribe
 {
     public interface IPublisher
     {
-        Task<bool> Bloadcast(IEventMessage message);
+        /// <summary>
+        /// 广播
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        Task<bool> Bloadcast<T>(IEventMessage<T> message);
     }
 }

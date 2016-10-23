@@ -9,14 +9,14 @@ namespace DataSubscibe.Core.PushEntrys
     public class TimelinePushEntry
     {
 #if NoIOC
-        public TimelinePushEntry(ISubScheduler subScheduler, IPublisher publisher)
+        public TimelinePushEntry(ISubPubScheduler subPubScheduler)
         {
-            SubScheduler = subScheduler;
-            Publisher = publisher;
+            SubScheduler = subPubScheduler;
+            Publisher = subPubScheduler;
         }
 #endif
 
-        public ISubScheduler SubScheduler { get; set; }
+        public ISubPubScheduler SubScheduler { get; set; }
 
         public IPublisher Publisher { get; set; }
 
@@ -34,12 +34,11 @@ namespace DataSubscibe.Core.PushEntrys
             var @event = "timeline";
             //var @event = PushEvent.TimeLine;
 
-            SubScheduler.AddSubscribe(
+            SubScheduler.AddSubscribe<Timeline>(
                     @event,
                     socketClientId,
-                    onDataCallback,
                     webSocketContext,
-                    name ?? "订阅了事件:" + @event
+                    onDataCallback
              );
 
             TimelineSocketSourceSample.Instance.Start(Publisher); //Demo,这里是本地Socket客户端与远程服务器连接并接受消息的入口， Start开始从Socket服务器端接受数据

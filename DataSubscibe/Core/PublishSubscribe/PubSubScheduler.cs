@@ -7,7 +7,7 @@ using WebGrease.Css.Extensions;
 
 namespace DataSubscibe.Core.PublishSubscribe
 {
-    public class PubSubScheduler : IPublisher, ISubScheduler
+    public class PubSubScheduler : ISubPubScheduler //IPublisher
     {
         private static PubSubScheduler _instance;
 
@@ -27,8 +27,17 @@ namespace DataSubscibe.Core.PublishSubscribe
         private ConcurrentDictionary<string, ConcurrentDictionary<string, ISubscribe>> _eventSubsList =
             new ConcurrentDictionary<string, ConcurrentDictionary<string, ISubscribe>>();
 
-        public bool AddSubscribe<T>(string @event, string subscriber,
-            Action<Subscribe<T>, object, IEventMessage<T>> method, object subContext, string name)
+        /// <summary>
+        /// 添加订阅
+        /// </summary>
+        /// <typeparam name="T">要订阅的数据对象的类型</typeparam>
+        /// <param name="event">要订阅的事件</param>
+        /// <param name="subscriber">订阅者Id</param>
+        /// <param name="subContext">订阅时的上下文对象</param>
+        /// <param name="method">订阅的事件触发（即广播）时的回调方法</param>
+        /// <param name="name">友好名称</param>
+        /// <returns></returns>
+        public bool AddSubscribe<T>(string @event, string subscriber, object subContext, Action<Subscribe<T>, object, IEventMessage<T>> method,  string name = null)
         {
             var subscribe = new Subscribe<T>()
             {
@@ -43,11 +52,21 @@ namespace DataSubscibe.Core.PublishSubscribe
 
         }
 
-        public bool AddSubscribe<T>(string @event, string subscriber,
-            Action<Subscribe<T>, object, IEventMessage<T>> method, string name)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T">要订阅的数据对象的类型</typeparam>
+        /// <param name="event">要订阅的事件</param>
+        /// <param name="subscriber">订阅者Id</param>
+        /// <param name="method">订阅的事件触发（即广播）时响应事件的回调方法</param>
+        /// <param name="name">友好名称</param>
+        /// <returns></returns>
+        public bool AddSubscribe<T>(string @event, string subscriber, Action<Subscribe<T>, object, IEventMessage<T>> method, string name = null)
         {
-            return AddSubscribe(@event, subscriber, method, default(object), name);
+            return AddSubscribe<T>(@event, subscriber, default(object), method, name);
         }
+
+
 
         public bool AddSubscribe<T>(Subscribe<T> subscribe)
         {
@@ -117,7 +136,7 @@ namespace DataSubscibe.Core.PublishSubscribe
             }
         }
 
-        public Task<bool> Bloadcast(IEventMessage message)
+        public Task<bool> Bloadcast<T>(IEventMessage<T> message)
         {
             if (!_eventSubsList.ContainsKey(message.Event))
                 return Task.FromResult(false);
