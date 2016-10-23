@@ -80,39 +80,57 @@ namespace Storage.QueryEntries
             clientSocket.Send(Encoding.ASCII.GetBytes("launch"));
 
             var cancelokenSource = new CancellationTokenSource();
+
+
             var buffer = new byte[1024];
             clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, new AsyncCallback((asyncResult) =>
             {
+                AsyncLoopReceiveData(asyncResult);
+            }), new Tuple<Socket, CancellationTokenSource, Func<string, Task<bool>>>(
+                clientSocket, 
+                cancelokenSource, 
+                (msg) => {
+                        return onDataCallback.Invoke(new KeyValuePair<string, Item>(@event, new Item(/*msg*/)));
+                    }
+                ));
 
-                var tokenSource = asyncResult as CancellationTokenSource;
-                if (tokenSource.IsCancellationRequested)
-                {
-                    return;
-                }
-                
-                var length = clientSocket.EndReceive(asyncResult);
-                var message = Encoding.UTF8.GetString(buffer, 0, length);
-                if(onDataCallback != null)
-                onDataCallback.Invoke(new KeyValuePair<string, Item>(@event, new Item())).ContinueWith(t =>
-                {
-                    if(!t.Result)
-                        tokenSource.Cancel();
-                });
+            #region OLD
 
-                //callback(message);
-                Console.WriteLine(message);
-            }), cancelokenSource);
+            //var buffer = new byte[1024];
+            //clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, new AsyncCallback((asyncResult) =>
+            //{
+
+            //    var tokenSource = asyncResult as CancellationTokenSource;
+            //    if (tokenSource.IsCancellationRequested)
+            //    {
+            //        return;
+            //    }
+
+            //    var length = clientSocket.EndReceive(asyncResult);
+            //    var message = Encoding.UTF8.GetString(buffer, 0, length);
+            //    if(onDataCallback != null)
+            //    onDataCallback.Invoke(new KeyValuePair<string, Item>(@event, new Item())).ContinueWith(t =>
+            //    {
+            //        if(!t.Result)
+            //            tokenSource.Cancel();
+            //    });
+
+            //    //callback(message);
+            //    Console.WriteLine(message);
+            //}), cancelokenSource);
+            #endregion
             return Task.FromResult(1);
         }
 
-        private static void AsyncReceiveData(IAsyncResult ar)
+        private static void AsyncLoopReceiveData(IAsyncResult ar)
         {
-            var tupleState = ar.AsyncState as Tuple<Socket, CancellationToken>;
+            var tupleState = ar.AsyncState as Tuple<Socket, CancellationTokenSource, Func<string, Task<bool>>>;
             if (tupleState == null)
                 return;
             var socket = tupleState.Item1;
-            CancellationToken token = tupleState.Item2;
-            if (token.IsCancellationRequested)
+            CancellationTokenSource cancelSource = tupleState.Item2;
+            var onDataCallBack = tupleState.Item3;
+            if (cancelSource.Token.IsCancellationRequested)
             {
                 socket.Shutdown(SocketShutdown.Both);
                 socket.Close();
@@ -124,16 +142,20 @@ namespace Storage.QueryEntries
                 return;
             if (!socket.Connected)
                 return;
-            if (token.IsCancellationRequested)
+            if (cancelSource.Token.IsCancellationRequested)
                 return;
-
+            var buffer = new byte[1024];
             var length = socket.EndReceive(ar);
             var message = Encoding.UTF8.GetString(buffer, 0, length);
-
-            //callback(message);
+            onDataCallBack.Invoke(message).ContinueWith((t) => {
+                    if (!t.Result && !cancelSource.IsCancellationRequested && cancelSource.Token.CanBeCanceled)
+                        cancelSource.Cancel();
+                 });
+#if DEBUG
             Console.WriteLine(message + (new Random(Guid.NewGuid().GetHashCode())).Next(100000, 999999));
+#endif
 
-            socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveMessage), tupleState);
+            socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, new AsyncCallback(AsyncLoopReceiveData), tupleState);
         }
     }
 }
