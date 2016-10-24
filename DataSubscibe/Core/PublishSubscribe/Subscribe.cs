@@ -10,7 +10,7 @@ namespace DataSubscibe.Core.PublishSubscribe
 
         public object SubContext { get; set; }
 
-        public Action<Subscribe<T>, object, IEventMessage<T>> OnPublishFunc { get; set; }
+        public Action<ISubscribeInfo, object, IEventMessage<T>> OnPublishFunc { get; set; }
 
         public void OnPublish(IEventMessage eventMessage)
         {

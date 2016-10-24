@@ -34,7 +34,7 @@ namespace DataSubscibe.SocketHandlers
             @event,
             ClientIdString,
             WebSocketContext,
-            (subscribe, webSocContext, data) =>
+            (subInfo, webSocContext, data) =>
             {
                 var context = (WebSocketContext)webSocContext;
                 var result = SocketHandResult.FromStringSocketContent(data.Message);

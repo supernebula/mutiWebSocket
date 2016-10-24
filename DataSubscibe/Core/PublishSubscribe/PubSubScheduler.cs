@@ -37,7 +37,7 @@ namespace DataSubscibe.Core.PublishSubscribe
         /// <param name="method">订阅的事件触发（即广播）时的回调方法</param>
         /// <param name="name">友好名称</param>
         /// <returns></returns>
-        public bool AddSubscribe<T>(string @event, string subscriber, object subContext, Action<Subscribe<T>, object, IEventMessage<T>> method,  string name = null)
+        public bool AddSubscribe<T>(string @event, string subscriber, object subContext, Action<ISubscribeInfo, object, IEventMessage<T>> method, string name = null)
         {
             var subscribe = new Subscribe<T>()
             {
@@ -61,7 +61,7 @@ namespace DataSubscibe.Core.PublishSubscribe
         /// <param name="method">订阅的事件触发（即广播）时响应事件的回调方法</param>
         /// <param name="name">友好名称</param>
         /// <returns></returns>
-        public bool AddSubscribe<T>(string @event, string subscriber, Action<Subscribe<T>, object, IEventMessage<T>> method, string name = null)
+        public bool AddSubscribe<T>(string @event, string subscriber, Action<ISubscribeInfo, object, IEventMessage<T>> method, string name = null)
         {
             return AddSubscribe<T>(@event, subscriber, default(object), method, name);
         }
