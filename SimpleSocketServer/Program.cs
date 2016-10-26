@@ -37,6 +37,7 @@ namespace SimpleSocketServer
             {
                 Socket clientSocket = serverSocket.Accept();
                 clientSocket.Send(Encoding.ASCII.GetBytes("Server Say Hello"));
+
                 Thread receiveThread = new Thread(ReceiveMessage);
                 receiveThread.Start(clientSocket);
             }
