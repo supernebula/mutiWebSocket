@@ -45,7 +45,12 @@
     <Compile Include="QueryEntries\FreqLevelPushEntry.cs" />
     <Compile Include="Sockets\SocketPool.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Domain\Domain.csproj">
+      <Project>{fd4dae23-704b-456f-a377-02d20d9dc6d4}</Project>
+      <Name>Domain</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

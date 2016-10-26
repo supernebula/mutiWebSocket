@@ -10,6 +10,8 @@ using Storage.Models;
 using DataSubscibe.Core.PushEntrys;
 using Fleck;
 using Newtonsoft.Json;
+using DataSubscibe.Core.Domain.Values;
+using Domain.Values;
 
 namespace DataSubscibe.SocketHandlers
 {
@@ -28,8 +30,9 @@ namespace DataSubscibe.SocketHandlers
         public ISubPubScheduler SubPubScheduler { get; set; }
 
         [WebSocketRoute(Path = "/freqlevel/item")]
-        public async Task ItemAsync(string taskId, string @event = "freqlev")
+        public async Task ItemAsync(string taskId)
         {
+            var @event = MonitorSocketEvent.FreqLevel;
             SubPubScheduler.AddSubscribe<FreqLevelItem>(
             @event,
             ClientIdString,
@@ -41,8 +44,8 @@ namespace DataSubscibe.SocketHandlers
                 context.WebSocketConnection.Send(result);
             }
  );
-            await FreqLevelPushEntry.PushOrStopItemAsync(taskId, (kv) => {
-                return SubPubScheduler.Bloadcast(new SocketEventMessage<FreqLevelItem>(kv.Key, kv.Value));
+            await FreqLevelPushEntry.PushOrStopItemAsync(taskId, (@event, data) => {
+                return SubPubScheduler.Bloadcast(new SocketEventMessage<FreqLevelItem>(@event, data));
             });
         }
     }

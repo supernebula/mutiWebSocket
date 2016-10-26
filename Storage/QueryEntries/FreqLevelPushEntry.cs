@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Storage.Models;
 using Storage.Sockets;
+using DataSubscibe.Core.Domain.Values;
 
 namespace Storage.QueryEntries
 {
@@ -24,15 +25,15 @@ namespace Storage.QueryEntries
         /// <param name="taskId"></param>
         /// <param name="onDataCallback">
         /// 每接受完一次Socket数据，要执行的回调方法。
-        /// KeyValuePair的<para>string</para>值是事件名称<see cref="EventMessageType"/>, 
-        /// <para>Item</para>时当前方法接受的Socket数据解析得到的实体对象，
+        /// <para>string</para>值是事件名称<see cref="EventMessageType"/>, 
+        /// <para>FreqLevelItem</para>时当前方法接受的Socket数据解析得到的实体对象
         /// 返回值<para>bool</para>决定Socket是否继续接受数据
         /// </param>
         /// <param name="stop"></param>
         /// <returns></returns>
-        public Task PushOrStopItemAsync(string taskId, Func<KeyValuePair<string, FreqLevelItem>, Task<bool>> onDataCallback, bool stop = false)
+        public Task PushOrStopItemAsync(string taskId, Func<string, FreqLevelItem, Task<bool>> onDataCallback, bool stop = false)
         {
-            var @event = "sfdf";
+            var @event = MonitorSocketEvent.FreqLevel;
             KeyValuePair<CancellationTokenSource, Socket> tokenSocket;
             SocketPool.TryGetValue(@event, out tokenSocket);
 
@@ -83,7 +84,7 @@ namespace Storage.QueryEntries
                 clientSocket, 
                 cancelokenSource, 
                 (msg) => {
-                        return onDataCallback.Invoke(new KeyValuePair<string, FreqLevelItem>(@event, new FreqLevelItem(/*msg*/)));
+                    return onDataCallback.Invoke(@event, new FreqLevelItem(/*msg*/));
                     }
                 ));
 
