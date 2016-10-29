@@ -23,7 +23,6 @@ namespace SimpleSocketClient
                 clientSocket.Connect(new IPEndPoint(ip, 8885)); // 配置服务器IP与端口
                 Console.WriteLine("连接服务器成功");
 
-
             }
             catch
             {

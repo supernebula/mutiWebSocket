@@ -20,6 +20,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Storage", "Storage\Storage.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{FD4DAE23-704B-456F-A377-02D20D9DC6D4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketServer", "SocketServer\SocketServer.csproj", "{AE2B1620-20DA-4731-9DF7-50DD3A11B120}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketClient", "SocketClient\SocketClient.csproj", "{B3A28FA4-EABF-4822-A5E4-D0B6B4509ED5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +50,14 @@ Global
 		{FD4DAE23-704B-456F-A377-02D20D9DC6D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD4DAE23-704B-456F-A377-02D20D9DC6D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD4DAE23-704B-456F-A377-02D20D9DC6D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE2B1620-20DA-4731-9DF7-50DD3A11B120}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE2B1620-20DA-4731-9DF7-50DD3A11B120}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE2B1620-20DA-4731-9DF7-50DD3A11B120}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE2B1620-20DA-4731-9DF7-50DD3A11B120}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3A28FA4-EABF-4822-A5E4-D0B6B4509ED5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3A28FA4-EABF-4822-A5E4-D0B6B4509ED5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3A28FA4-EABF-4822-A5E4-D0B6B4509ED5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3A28FA4-EABF-4822-A5E4-D0B6B4509ED5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
