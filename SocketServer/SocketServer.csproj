@@ -41,6 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="~CustomSocketFrame.cs" />
+    <Compile Include="CustomSocketFrame.cs" />
+    <Compile Include="CustomSocketFrameExtension.cs" />
+    <Compile Include="PacketUtil.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SocketAsyncServer.cs">
